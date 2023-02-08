@@ -1,16 +1,17 @@
-const OpenAI = require("openai");
-const { Configuration, OpenAIApi } = OpenAI;
+import { aiTemplates } from "./src/templates.js";
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+import { OpenAIApi, Configuration } from "openai";
+
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
 
 const app = express();
 const port = 5000;
 
 const configuration = new Configuration({
   organization: "org-11zyW7yuLZePbMkz8pTNF9hx",
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 
@@ -20,21 +21,16 @@ app.use(cors());
 app.post("/", async (req, res) => {
   const { message } = req.body;
 
-  const rangeTokens = {
-    min: 10,
-    max: 100,
-  };
-
-  const randomTokens = () =>
-    Math.floor(Math.random() * (rangeTokens.max - rangeTokens.min)) + rangeTokens.min;
-
   const response = await openai.createCompletion({
     model: "text-davinci-003",
-    prompt: `Pretend you are Senior Sofwatre Engineer John. 
-    You only say when someone asks you. ${message}
-    `,
-    max_tokens: randomTokens(),
-    temperature: 0,
+    prompt: `${aiTemplates[0].order} ${message}`,
+    max_tokens: 4000,
+    temperature: 0.7,
+    top_p: 1,
+    n: 1,
+    frequency_penalty: 0.5,
+    presence_penalty: 0.6,
+    stop: ["User:", "John Doe:"],
   });
 
   if (response.data.choices[0].text) {
